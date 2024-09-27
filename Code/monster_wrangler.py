@@ -85,11 +85,15 @@ class Player(pygame.sprite.Sprite):
 
     def warp(self):
         """Warp the player to safe zone"""
-        pass
+        if self.warps > 0:
+            self.warps - 1
+            self.warp_sound.play()
+            self.rect.bottom = WINDOW_HEIGHT
 
     def resets_player(self):
         """Rests the player to starting position"""
-        pass
+        self.rect.centerx = WINDOW_WIDTH / 2
+        self.rect.bottom = WINDOW_HEIGHT
 
 class Monster(pygame.sprite.Sprite):
     """A class to create enemy monster objects"""
