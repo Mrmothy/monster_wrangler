@@ -97,13 +97,32 @@ class Player(pygame.sprite.Sprite):
 
 class Monster(pygame.sprite.Sprite):
     """A class to create enemy monster objects"""
-    def __init__(self):
+    def __init__(self, x, y, image, monster_type):
         """Initialize the monster"""
-        pass
+        super().__init__()
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        
+        #Monster type is an int 0 -> Blue, 1 -> Green, 2 -> Purple, 3 -> Yellow.
+        self.type = monster_type
+
+        #Set random motion
+        self.dx = random.choice([-1, 1])
+        self.dy = random.choice([-1, 1])
+        self.velocity = random.randint(1, 5)
+        
 
     def update(self):
         """Update the monster"""
-        pass
+        self.rect.x += self.dx*self.velocity
+        self.rect.y += self.dy*self.velocity
+
+        #Bounce the monster off the display
+        if self.rect.left <= 0 or self.rect.right >= WINDOW_WIDTH:
+            self.dx = -1 * self.dx
+        if self.rect.top <= 0 or self.rect.bottom >= WINDOW_HEIGHT:
+            self.dy = -1 * self.dy
 
 #Create a Player group and Player object
 my_player_group = pygame.sprite.Group()
@@ -112,6 +131,11 @@ my_player_group.add(my_player)
 
 #Create a Monster group.
 my_monster_group = pygame.sprite.Group()
+#! Test monster
+monster = Monster(500, 500, pygame.image.load('Assets/green_monster.png'), 1)
+my_monster_group.add(monster)
+monster = Monster(100, 500, pygame.image.load('Assets/blue_monster.png'), 1)
+my_monster_group.add(monster)
 
 #Create a Game Object
 my_game = Game()
