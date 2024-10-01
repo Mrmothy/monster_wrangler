@@ -147,8 +147,8 @@ class Game():
                 self.player.die_sound.play()
                 self.player.lives -= 1
                 #Check for game over
-                if self.player.lives == 0:
-                    self.pause_game()
+                if self.player.lives <= 0:
+                    self.pause_game(main_text=(f"Final Score: {self.score}"), sub_text=("Press ENTER to play again"))
                     self.rest_game()
                 self.player.reset()
 
@@ -180,14 +180,48 @@ class Game():
 
     def chose_new_target(self):
         """Choose a new target monster for the player"""
-        pass
+        target_monster = random.choice(self.monster_group.sprites())
+        self.target_monster_type = target_monster.type
+        self.target_monster_image = target_monster.image
 
-    def pause_game(self):
+    def pause_game(self, main_text, sub_text):
+        global running
         """Pause the game"""
-        pass
+        #Set Color
+        WHITE = (255, 255, 255)
+        BLACK = (0, 0, 0)
+
+        #Create main text
+        main_text = self.font.render(main_text, True, WHITE)
+        main_rect = main_text.get_rect()
+        main_rect.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+
+        #Create sub-text
+        sub_text = self.font.render(sub_text, True, WHITE)
+        sub_rect = sub_text.get_rect()
+        sub_rect.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 + 64)
+
+        #Display the pause Text
+        display_surface.fill(BLACK)
+        display_surface.blit(main_text, main_rect)
+        display_surface.blit(sub_text, sub_rect)
+        pygame.display.update()
+
+        #Pause the game
+        is_paused = True
+        while is_paused:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        is_paused = False
+                if event.type == pygame.QUIT:
+                    is_paused = False
+                    running = False
+                    
+
 
     def rest_game(self):
-        """Rest the game"""
+        """Rest the game""" 
         pass
 
 class Player(pygame.sprite.Sprite):
