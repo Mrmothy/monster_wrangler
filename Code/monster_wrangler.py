@@ -217,12 +217,20 @@ class Game():
                 if event.type == pygame.QUIT:
                     is_paused = False
                     running = False
+                
                     
 
 
     def rest_game(self):
         """Rest the game""" 
-        pass
+        self.score = 0
+        self.round_number = 0
+        
+        self.player.lives = 5
+        self.player.warps = 2
+        self.player.reset()
+
+        self.start_new_round()
 
 class Player(pygame.sprite.Sprite):
     """A player class that the user can control"""
@@ -254,15 +262,16 @@ class Player(pygame.sprite.Sprite):
             self.rect.x -= self.velocity
         if keys[pygame.K_RIGHT] and self.rect.right < WINDOW_WIDTH:
             self.rect.x += self.velocity
-        if keys[pygame.K_UP] and self.rect.top > 0:
+        if keys[pygame.K_UP] and self.rect.top > 100:
             self.rect.y -= self.velocity
-        if keys[pygame.K_DOWN] and self.rect.bottom < WINDOW_HEIGHT:
+        if keys[pygame.K_DOWN] and self.rect.bottom < WINDOW_HEIGHT - 100:
             self.rect.y += self.velocity
+        
 
     def warp(self):
         """Warp the player to safe zone"""
         if self.warps > 0:
-            self.warps - 1
+            self.warps -= 1
             self.warp_sound.play()
             self.rect.bottom = WINDOW_HEIGHT
 
@@ -297,7 +306,7 @@ class Monster(pygame.sprite.Sprite):
         #Bounce the monster off the display
         if self.rect.left <= 0 or self.rect.right >= WINDOW_WIDTH:
             self.dx = -1 * self.dx
-        if self.rect.top <= 0 or self.rect.bottom >= WINDOW_HEIGHT:
+        if self.rect.top <= 100 or self.rect.bottom >= WINDOW_HEIGHT - 100:
             self.dy = -1 * self.dy
 
 #Create a Player group and Player object
@@ -310,6 +319,7 @@ my_monster_group = pygame.sprite.Group()
 
 #Create a Game Object
 my_game = Game(my_player, my_monster_group)
+my_game.pause_game("MONSTER WRANGLER", "Press Enter key to begin")
 my_game.start_new_round()
 
 
@@ -319,6 +329,10 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        #player wants to warp
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                my_player.warp()
 
 
     #Fill display
