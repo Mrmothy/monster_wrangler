@@ -55,11 +55,63 @@ class Game():
 
     def update(self):
         """Update our game object"""
-        pass
+        self.frame_count += 1
+        if self.frame_count == FPS:
+            self.round_time += 1
+            self.frame_count = 0
+            
+        #Check for collisions
+        self.check_collisions()
 
     def draw(self):
         """Draw the hud and other to the display"""
-        pass
+        #Set Colors
+        WHITE = (225, 225, 255)
+        BLUE = (20, 176, 235)
+        GREEN = (87, 201, 47)
+        PURPLE = (226, 73, 243)
+        YELLOW = (243, 157, 20)
+        
+        #Add monster colors to a list where the index of the color matches target_monster_images
+        colors = [BLUE, GREEN, PURPLE, YELLOW]
+
+        #Set Text
+        catch_text = self.font.render("Current Catch", True, WHITE)
+        catch_rect = catch_text.get_rect()
+        catch_rect.centerx = WINDOW_WIDTH / 2
+        catch_rect.top = 5
+
+        score_text = self.font.render(f"Score: {self.score}", True, WHITE)
+        score_rect = score_text.get_rect()
+        score_rect.topleft = (5, 5)
+
+        lives_text = self.font.render(f"Lives: {self.player.lives}", True, WHITE)
+        lives_rect = lives_text.get_rect()
+        lives_rect.topleft = (5, 35)
+
+        round_text = self.font.render(f"Rounds: {self.round_number}", True, WHITE)
+        round_rect = round_text.get_rect()
+        round_rect.topleft = (5, 65)
+
+        time_text = self.font.render(f"Round Time: {self.round_time}", True, WHITE)
+        time_rect = time_text.get_rect()
+        time_rect.topright = (WINDOW_WIDTH - 10, 5)
+
+        warp_text = self.font.render(f"Warps: {self.player.warps}", True, WHITE)
+        warp_rect = warp_text.get_rect()
+        warp_rect.topright = (WINDOW_WIDTH -10, 35)
+
+        #Blit the HUD
+        display_surface.blit(catch_text, catch_rect)
+        display_surface.blit(score_text, score_rect)
+        display_surface.blit(lives_text, lives_rect)
+        display_surface.blit(round_text, round_rect)
+        display_surface.blit(time_text, time_rect)
+        display_surface.blit(warp_text, warp_rect)
+        display_surface.blit(self.target_monster_image, self.target_monster_rect)
+        
+        pygame.draw.rect(display_surface, colors[self.target_monster_type], (WINDOW_WIDTH / 2 - 32, 30, 64, 64), 2)
+        pygame.draw.rect(display_surface, colors[self.target_monster_type], (0, 100, WINDOW_WIDTH, WINDOW_HEIGHT - 200), 4)
 
     def check_collisions(self):
         """Check for collisions between players and monsters"""
