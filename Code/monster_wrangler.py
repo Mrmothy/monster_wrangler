@@ -59,7 +59,7 @@ class Game():
         if self.frame_count == FPS:
             self.round_time += 1
             self.frame_count = 0
-            
+
         #Check for collisions
         self.check_collisions()
 
@@ -101,6 +101,11 @@ class Game():
         warp_rect = warp_text.get_rect()
         warp_rect.topright = (WINDOW_WIDTH -10, 35)
 
+        #! This is an after thought add
+        game_title_text = self.font.render("MONSTER WRANGLER", True, WHITE)
+        game_title_rect = game_title_text.get_rect()
+        game_title_rect.topright = (WINDOW_WIDTH - 10, 65)
+
         #Blit the HUD
         display_surface.blit(catch_text, catch_rect)
         display_surface.blit(score_text, score_rect)
@@ -108,6 +113,7 @@ class Game():
         display_surface.blit(round_text, round_rect)
         display_surface.blit(time_text, time_rect)
         display_surface.blit(warp_text, warp_rect)
+        display_surface.blit(game_title_text, game_title_rect) #! This is an after thought add
         display_surface.blit(self.target_monster_image, self.target_monster_rect)
         
         pygame.draw.rect(display_surface, colors[self.target_monster_type], (WINDOW_WIDTH / 2 - 32, 30, 64, 64), 2)
@@ -115,10 +121,39 @@ class Game():
 
     def check_collisions(self):
         """Check for collisions between players and monsters"""
-        pass
+        #Check for collision between a player and an individual monster
+        #We must test the type of the monster to see if it matches the type of our target monster.
+        collided_monster = pygame.sprite.spritecollideany(self.player, self.monster_group)
+        
+        #We collided with a monster
+        if collided_monster:
+            #Caught the correct monster
+            if collided_monster.type == self.target_monster_type:
+                self.score += 100 * self.round_number
+                #Remove caught monster
+                collided_monster.remove(self.monster_group)
+                if (self.monster_group):
+                    #There are more monsters to catch
+                    self.player.catch_sound.play()
+                    self.chose_new_target()
+                else:
+                    #The round is complete
+                    self.player.reset()
+                    self.start_new_round()
+                    self.next_level_sound.play() #!Might be wrong location
+            #Caught wrong monster
+            else:
+                self.player.die_sound.play()
+                self.player.lives -= 1
+                #Check for game over
+                if self.player.lives == 0:
+                    self.pause_game()
+                    self.rest_game()
+                self.player.reset()
 
     def start_new_round(self):
         """Populate board with new monsters"""
+        #
         pass
 
     def chose_new_target(self):
@@ -213,11 +248,6 @@ my_player_group.add(my_player)
 
 #Create a Monster group.
 my_monster_group = pygame.sprite.Group()
-#! Test monster
-monster = Monster(500, 500, pygame.image.load('Assets/green_monster.png'), 1)
-my_monster_group.add(monster)
-monster = Monster(100, 500, pygame.image.load('Assets/blue_monster.png'), 1)
-my_monster_group.add(monster)
 
 #Create a Game Object
 my_game = Game(my_player, my_monster_group)
