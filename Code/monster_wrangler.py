@@ -33,13 +33,14 @@ class Game():
 
         #Set Sounds and Music
         self.next_level_sound = pygame.mixer.Sound(join("Assets", "next_level.wav"))
+        self.next_level_sound.set_volume(.25)
 
         #Set Font
         self.font = pygame.font.Font(join("Assets", "Abrushow.ttf"), 24)
 
         #Set Images
         blue_image = pygame.image.load(join("Assets", "blue_monster.png")).convert_alpha()
-        green_image = pygame.image.load(join("Assets", "blue_monster.png")).convert_alpha()
+        green_image = pygame.image.load(join("Assets", "green_monster.png")).convert_alpha()
         purple_image = pygame.image.load(join("Assets", "purple_monster.png")).convert_alpha()
         yellow_image = pygame.image.load(join("Assets", "yellow_monster.png")).convert_alpha()
         #This list corresponds to the monster_type attribute.
@@ -140,7 +141,7 @@ class Game():
                     #The round is complete
                     self.player.reset()
                     self.start_new_round()
-                    self.next_level_sound.play() #!Might be wrong location
+
             #Caught wrong monster
             else:
                 self.player.die_sound.play()
@@ -153,8 +154,29 @@ class Game():
 
     def start_new_round(self):
         """Populate board with new monsters"""
-        #
-        pass
+        #Provide a score bonus based on how quickly the round was finished. 
+        self.score += int(10000* self.round_number / (1 + self.round_time))
+        
+        #Reset round values
+        self.round_time = 0
+        self.frame_count = 0
+        self.round_number += 1
+        self.player.warps += 1
+
+        #Remove any remaining monsters from a gam reset
+        for monster in self.monster_group:
+            self.monster_group.remove(monster)
+
+        #Add monsters to the monster group
+        for i in range(self.round_number):
+            self.monster_group.add(Monster(random.randint(0, WINDOW_WIDTH - 64), random.randint(100, WINDOW_HEIGHT - 164), self.target_monster_images[0], 0))
+            self.monster_group.add(Monster(random.randint(0, WINDOW_WIDTH - 64), random.randint(100, WINDOW_HEIGHT - 164), self.target_monster_images[1], 1))
+            self.monster_group.add(Monster(random.randint(0, WINDOW_WIDTH - 64), random.randint(100, WINDOW_HEIGHT - 164), self.target_monster_images[2], 2))
+            self.monster_group.add(Monster(random.randint(0, WINDOW_WIDTH - 64), random.randint(100, WINDOW_HEIGHT - 164), self.target_monster_images[3], 3))
+
+        #Choose a new target monster
+        self.chose_new_target()
+        self.next_level_sound.play()
 
     def chose_new_target(self):
         """Choose a new target monster for the player"""
@@ -183,8 +205,11 @@ class Player(pygame.sprite.Sprite):
         self.velocity = 8
 
         self.catch_sound = pygame.mixer.Sound(join('Assets', 'catch.wav'))
+        self.catch_sound.set_volume(.25)
         self.die_sound = pygame.mixer.Sound(join('Assets', 'die.wav'))
+        self.die_sound.set_volume(.25)
         self.warp_sound = pygame.mixer.Sound(join('Assets', 'warp.wav'))
+        self.warp_sound.set_volume(.25)
 
     def update(self):
         """Update the player"""
@@ -207,8 +232,8 @@ class Player(pygame.sprite.Sprite):
             self.warp_sound.play()
             self.rect.bottom = WINDOW_HEIGHT
 
-    def resets_player(self):
-        """Rests the player to starting position"""
+    def reset(self):
+        """Resets the player to starting position"""
         self.rect.centerx = WINDOW_WIDTH / 2
         self.rect.bottom = WINDOW_HEIGHT
 
@@ -251,6 +276,7 @@ my_monster_group = pygame.sprite.Group()
 
 #Create a Game Object
 my_game = Game(my_player, my_monster_group)
+my_game.start_new_round()
 
 
 #*Start game loop
