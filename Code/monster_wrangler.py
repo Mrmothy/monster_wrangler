@@ -1,4 +1,4 @@
-import pygame, random
+import pygame, random, sys
 from os.path import join
 
 
@@ -217,6 +217,7 @@ class Game():
                 if event.type == pygame.QUIT:
                     is_paused = False
                     running = False
+                    sys.exit()
                 
                     
 
